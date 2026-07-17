@@ -19,8 +19,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Model files
-models/
+# Model files 
+models/*.pkl
+models/*.joblib
 
 # MLflow
 mlruns/
