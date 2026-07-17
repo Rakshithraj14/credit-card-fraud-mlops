@@ -1,4 +1,6 @@
 # app/main.py
+from contextlib import asynccontextmanager
+
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -7,20 +9,22 @@ from pydantic import BaseModel, Field
 MODEL_PATH = "models/model.pkl"
 SCALER_PATH = "models/scaler.pkl"
 
-app = FastAPI(title="Credit Card Fraud Detection API")
-
 model = None
 scaler = None
 
 
-@app.on_event("startup")
-def load_artifacts():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global model, scaler
     try:
         model = joblib.load(MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
     except Exception as e:
         raise RuntimeError(f"Failed to load model/scaler: {e}")
+    yield
+
+
+app = FastAPI(title="Credit Card Fraud Detection API", lifespan=lifespan)
 
 
 class Transaction(BaseModel):
@@ -58,7 +62,7 @@ def predict(transaction: Transaction):
     if model is None or scaler is None:
         raise HTTPException(status_code=503, detail="Model or scaler not loaded")
 
-    df = pd.DataFrame([transaction.dict()])
+    df = pd.DataFrame([transaction.model_dump()])
     df[["Time", "Amount"]] = scaler.transform(df[["Time", "Amount"]])
 
     prob = float(model.predict_proba(df)[0][1])  # joblib model needs predict_proba, not mlflow's .predict
