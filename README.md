@@ -134,3 +134,7 @@ push/PR to `dev` and `main`:
 - **Serving**: FastAPI + Uvicorn
 - **Containerization**: Docker
 - **CI**: GitHub Actions
+
+---
+
+Built with ⊹ ࣪ ﹏𓊝﹏𓂁﹏⊹ ࣪ ˖
