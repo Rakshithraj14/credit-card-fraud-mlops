@@ -65,5 +65,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create placeholder model for Docker build
+        run: |
+          pip install --no-cache-dir scikit-learn pandas joblib
+          python -c "
+          import numpy as np
+          import pandas as pd
+          import joblib
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.preprocessing import StandardScaler
+          import os
+
+          os.makedirs('models', exist_ok=True)
+
+          np.random.seed(42)
+          n = 500
+          cols = ['Time'] + [f'V{i}' for i in range(1, 29)] + ['Amount']
+          X = pd.DataFrame(np.random.randn(n, 30), columns=cols)
+          X['Amount'] = np.abs(X['Amount']) * 100
+          y = np.random.choice([0, 1], size=n, p=[0.95, 0.05])
+
+          scaler = StandardScaler()
+          X[['Time', 'Amount']] = scaler.fit_transform(X[['Time', 'Amount']])
+
+          model = RandomForestClassifier(n_estimators=10, random_state=42)
+          model.fit(X, y)
+
+          joblib.dump(model, 'models/model.pkl')
+          joblib.dump(scaler, 'models/scaler.pkl')
+          "
+
       - name: Build Docker image
         run: docker build -t fraud-detector-api .
