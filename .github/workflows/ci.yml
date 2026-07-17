@@ -24,10 +24,35 @@ jobs:
           pip install --no-cache-dir -r requirements-api.txt
           pip install pytest httpx
 
-      - name: Set up DVC and pull model artifacts
+      - name: Train a lightweight model for CI testing
         run: |
-          pip install dvc
-          dvc pull models/model.pkl.dvc models/scaler.pkl.dvc || echo "No remote access in CI — skipping"
+          python -c "
+          import numpy as np
+          import pandas as pd
+          import joblib
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.preprocessing import StandardScaler
+          import os
+
+          os.makedirs('models', exist_ok=True)
+
+          np.random.seed(42)
+          n = 500
+          cols = ['Time'] + [f'V{i}' for i in range(1, 29)] + ['Amount']
+          X = pd.DataFrame(np.random.randn(n, 30), columns=cols)
+          X['Amount'] = np.abs(X['Amount']) * 100
+          y = np.random.choice([0, 1], size=n, p=[0.95, 0.05])
+
+          scaler = StandardScaler()
+          X[['Time', 'Amount']] = scaler.fit_transform(X[['Time', 'Amount']])
+
+          model = RandomForestClassifier(n_estimators=10, random_state=42)
+          model.fit(X, y)
+
+          joblib.dump(model, 'models/model.pkl')
+          joblib.dump(scaler, 'models/scaler.pkl')
+          print('CI test model created successfully')
+          "
 
       - name: Run tests
         run: pytest tests/ -v
