@@ -1,9 +1,13 @@
 # Virtual Environment
 .venv/
+venv/
+env/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -11,17 +15,34 @@ __pycache__/
 # VS Code
 .vscode/
 
+# OS
+.DS_Store
+Thumbs.db
+
 # Model files
 models/
 
 # MLflow
 mlruns/
+mlartifacts/
 
 # DVC cache
 .dvc/cache/
+.dvc/tmp/
 
 # Environment variables
 .env
 
 # Dataset
 data/*.csv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Docker
+*.pid
