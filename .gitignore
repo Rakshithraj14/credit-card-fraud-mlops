@@ -1,0 +1,27 @@
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Model files
+models/
+
+# MLflow
+mlruns/
+
+# DVC cache
+.dvc/cache/
+
+# Environment variables
+.env
+
+# Dataset
+data/*.csv
